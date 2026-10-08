@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "framework": null,
+  "buildCommand": "echo Painel por encaminhamento",
+  "outputDirectory": "vercel-proxy",
   "rewrites": [
     {
       "source": "/(.*)",
