@@ -18,8 +18,6 @@ services:
         value: ./runtime/config.json
       - key: BOT_GATEWAY_TOKEN
         sync: false
-      - key: OWNER_JID
-        sync: false
       - key: ALLOWED_GROUP_IDS
         value: ""
       - key: LOG_LEVEL

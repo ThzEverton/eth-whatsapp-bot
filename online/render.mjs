@@ -1,6 +1,6 @@
 import {spawn} from 'node:child_process';
 import {setTimeout as delay} from 'node:timers/promises';
-const required=['BOT_GATEWAY_TOKEN','OWNER_JID','AUTH_DIR','CONFIG_FILE'];
+const required=['BOT_GATEWAY_TOKEN','AUTH_DIR','CONFIG_FILE'];
 for(const name of required)if(!process.env[name])throw Error('Variavel obrigatoria ausente: '+name);
 if(process.env.BOT_GATEWAY_TOKEN.length<32)throw Error('BOT_GATEWAY_TOKEN deve ter no minimo 32 caracteres');
 const env={...process.env,GATEWAY_HOST:'0.0.0.0',GATEWAY_PORT:process.env.PORT||'10000'};
