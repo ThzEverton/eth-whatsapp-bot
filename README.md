@@ -1,146 +1,163 @@
-# WhatsApp Game Bot
+<div align="center">
 
-Bot coletivo em português, sem banco de dados. Cada grupo possui fila, sessão, timers e cooldown independentes. Inclui quiz com 110 perguntas, número, palavra embaralhada, emojis e forca.
+# ETH / WhatsApp
+
+### Jogos interativos e gerenciamento de grupos em tempo real
+
+**Bot para grupos do WhatsApp • Dashboard local • Extensão do Chrome • Configuração por grupo**
+
+![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Chrome](https://img.shields.io/badge/Chrome-Side%20Panel-4285F4?logo=googlechrome&logoColor=white)
+![License](https://img.shields.io/badge/licen%C3%A7a-n%C3%A3o%20definida-lightgrey)
+
+</div>
+
+> [!IMPORTANT]
+> Projeto independente, não oficial e em desenvolvimento. Não é afiliado à Meta ou ao WhatsApp. Use somente contas e grupos que você tenha permissão para administrar. Não há promessa de disponibilidade permanente nem de aprovação pela plataforma.
+
+## Visão geral
+
+O **ETH / WhatsApp** oferece minijogos em grupos com sessões independentes, processamento serializado de respostas e administração por um painel local. O painel permite acompanhar a conexão, autorizar grupos, consultar conversas observadas e alterar preferências usando modais. A extensão do Chrome abre uma versão compacta no painel lateral do navegador.
+
+## Funcionalidades
+
+| Área | Recursos |
+| --- | --- |
+| **Jogos** | Quiz, número secreto, palavra embaralhada, adivinhação por emojis e forca |
+| **Grupos** | Lista de grupos, autorização por grupo, modalidades e tempos personalizados |
+| **Partidas** | Uma sessão por grupo; um vencedor por rodada; intervalos e cooldowns |
+| **Administração** | Comandos restritos ao proprietário configurado, não a qualquer administrador |
+| **Dashboard** | Conexão, conversas locais, envio manual, indicadores e eventos |
+| **Extensão** | Interface compacta ao lado do WhatsApp Web, usando o servidor local |
+| **UX** | Controles em modais, navegação de volta, status e convite de reconexão |
+
+## Arquitetura
+
+```text
+WhatsApp (Baileys, conexão não oficial)
+           |
+       Bot Node.js
+       |       |
+  GameManager  Painel interno (protegido)
+       |       |
+ Fila por grupo | 
+       |    Monitor local (127.0.0.1:3100)
+       |       |                |
+ Configurações Dashboard     Extensão Chrome
+  em arquivo   no navegador   (side panel)
+```
+
+O motor de jogos é isolado da integração de transporte. Cada grupo tem sua própria fila e estado de partida. Configurações ficam em arquivos locais; **não é necessário banco de dados neste MVP**.
+
+## Requisitos
+
+- **Node.js 24** e npm
+- Google Chrome 116+ para a extensão
+- Conta WhatsApp com permissão para os grupos
+- Computador ligado enquanto o bot estiver ativo
 
 ## Instalação
 
-Use Node.js 24 LTS e npm. Ambiente verificado: Node 24.19.0. Baileys está fixado em `7.0.0-rc14` (release candidate); o lockfile fixa as dependências.
-
 ```powershell
+git clone https://github.com/ThzEverton/eth-whatsapp-bot.git
+cd eth-whatsapp-bot
 npm.cmd ci
 Copy-Item .env.example .env
-# Edite .env antes de iniciar
-npm.cmd run dev
 ```
 
-No Linux use `npm` e `cp .env.example .env`. No Windows, `npm.cmd` evita a restrição de execução de npm.ps1 sem modificar a política do sistema.
+Edite o arquivo `.env` para definir o proprietário. Nunca publique credenciais, tokens, QR codes ou pastas de sessão.
 
 ```dotenv
-OWNER_JID=
+OWNER_JID=5511999999999@s.whatsapp.net
 ALLOWED_GROUP_IDS=
 AUTH_DIR=./auth
 CONFIG_FILE=./runtime/config.json
 LOG_LEVEL=info
 ```
 
-O proprietário deve ser o número completo com país e DDD, sem pontuação, seguido de `@s.whatsapp.net`, ou um JID `@lid` conhecido e verificado. Nomes e cargos de administrador não autorizam ninguém. Use preferencialmente um número de proprietário diferente do número conectado ao bot: mensagens do próprio bot são ignoradas, inclusive administrativas.
+O exemplo `OWNER_JID` é ilustrativo. Use seu identificador correto e validado.
 
-Exceção solicitada para a fase de teste: o proprietário pode enviar `/bot` usando o próprio número conectado. A identidade é comparada com a conta autenticada do socket; os comandos /bot e /jogo têm essa exceção, sem aceitar respostas geradas pelo bot.
-
-Essa exceção inclui eventos append do próprio proprietário com timestamp recente e posterior ao início do processo, sem requestId. Histórico permanece ignorado. Envelopes de mensagens temporárias e de dispositivo são abertos de forma limitada; edições e protocolos continuam descartados. O diagnóstico de /bot registra apenas tipo de evento, flags e idade, sem conteúdo da conversa.
-
-Proteja `.env`, `auth/` e `runtime/` pela conta do serviço. Nunca publique QR, credenciais ou backups. O processo aplica umask 077 e diretório de autenticação 0700 no Linux. No Windows, restrinja os diretórios pelas ACLs do usuário do serviço. Esses caminhos estão excluídos do Git.
-
-## Conectar e escolher grupos
-
-1. Execute `npm.cmd run app` e abra o painel ou a extens?o lateral.
-2. Leia o QR em **WhatsApp ? Aparelhos conectados ? Conectar aparelho**. Se j? houver uma sess?o v?lida, o sistema a reutiliza.
-3. Os grupos em que a conta participa aparecem no painel. N?o ? necess?rio cadastrar seus JIDs manualmente.
-4. Selecione qualquer grupo e clique em **Autorizar grupo**. Depois escolha jogo, varia??o e configura??es.
-5. Voc? pode remover a autoriza??o individualmente; isso encerra a partida daquele grupo.
-6. Como alternativa, o propriet?rio fixo pode usar `/config grupos adicionar JID` e `/config grupos listar` no privado. `ALLOWED_GROUP_IDS` continua dispon?vel para instala??es configuradas por arquivo.
-
-O JSON, quando existe, tem precedência sobre `ALLOWED_GROUP_IDS` para manter inclusões e remoções após reinício. Para reconstruir pelo ambiente, pare o bot e arquive o JSON. O proprietário sempre vem do ambiente.
-
-LIDs são resolvidos pelo repositório de identidade autenticada do Baileys. `participantAlt` isolado não concede autorização. LID não resolvido falha com segurança para proprietário PN; participantes podem iniciar e responder jogos usando o LID autenticado, com identidade de jogo fixada por sessão de conexão para preservar cooldowns quando o mapeamento chega depois. Proprietário explicitamente cadastrado por LID é autorizado pelo LID primário.
-
-## Jogos
-
-Envie `/bot` no grupo autorizado para a apresentação: “Olá! Sou o bot de jogos da ETH, em fase de teste.” Há um intervalo de 10 segundos entre apresentações.
-
-```text
-/jogo
-/jogo quiz
-/jogo numero
-/jogo palavra
-/jogo emoji
-/jogo forca
-/r C
-```
-
-`/jogo` reserva a seleção por 30s. Qualquer participante escolhe com `/jogo modalidade`. Outro menu não cria segunda reserva. Palpites são mensagens normais; quiz aceita A–D ou `/r C`. `/r resposta` funciona nos outros jogos também.
-
-Defaults: quiz 60s; número/palavra/emoji 90s; forca 120s; intervalo entre partidas 20s; um palpite por participante a cada 2s. Tentativas inválidas também passam pelo limite de frequência. O primeiro acerto processado na fila vence; não há promessa sobre quem digitou primeiro no telefone.
-
-Na forca, letras erradas consomem uma das seis tentativas da equipe; letras repetidas não gastam tentativas. Palavra completa incorreta não consome tentativa. A última letra que completa a palavra declara vencedor. Respostas erradas ficam silenciosas, exceto a atualização coletiva da forca.
-
-## Administração exclusiva do proprietário
-
-```text
-/config
-/config status
-/config jogos on
-/config jogos off
-/config modalidade quiz off
-/config modalidade forca on
-/config tempo 90
-/config tempo quiz 60
-/config cooldown 20
-/config palpites 2
-/config intervalo 1 100
-/config encerrar
-/config grupos listar
-/config grupos adicionar 120363000000000000@g.us
-/config grupos remover 120363000000000000@g.us
-```
-
-No privado, direcione os comandos ao grupo:
-
-```text
-/config grupo 120363000000000000@g.us tempo quiz 90
-/config grupo 120363000000000000@g.us encerrar
-```
-
-Limites: tempo 10–600s; intervalo entre partidas 0–3600s; palpites 0–60s; números inteiros de 1 a 1000000, mínimo menor que máximo. Tempos e intervalo numérico afetam a próxima rodada. Desligar jogos ou a modalidade atual cancela a partida. Usuários não autorizados não recebem resposta, evitando spam e exposição do menu.
-
-Configurações são individuais por grupo e persistidas com arquivo temporário e rename, em fila serial. JSON inválido impede o início. Falha de disco é registrada e não recebe confirmação de persistência; a alteração em memória pode já ter ocorrido. Corrija permissões/espaço e reaplique o comando antes de reiniciar.
-
-## Testes e produção
+### Iniciar a aplicação
 
 ```powershell
-npm.cmd test
-npm.cmd run check
 npm.cmd run build
-npm.cmd start
+npm.cmd run app
 ```
 
-Testes usam transporte simulado apenas na suíte. Cobrem concorrência com Promise.all, vitória única antes do envio, duplicatas, deadlines, sessões antigas, cooldowns, forca, permissões PN/LID, falhas de rede, mensagens malformadas e isolamento. A conexão real exige seu QR e grupo autorizado.
+Abra **http://localhost:3100**. Conecte a conta usando o QR quando solicitado e autorize os grupos desejados. Os dados e a autenticação ficam no computador local.
 
-Execute uma única instância, sem cluster ou réplicas. Use conta de serviço e supervisor como systemd ou Docker. Preserve `auth/` e `runtime/`; partidas não sobrevivem ao reinício.
+### Extensão do Chrome
 
-```sh
-docker build -t whatsapp-game-bot .
-docker run -d --name whatsapp-game-bot --restart unless-stopped --env-file .env -v "$PWD/auth:/app/auth" -v "$PWD/runtime:/app/runtime" whatsapp-game-bot
-docker logs -f whatsapp-game-bot
+1. Com o monitor local ativo, abra o painel.
+2. Escolha a opção de adicionar a extensão e siga as instruções.
+3. Abra o painel lateral no Chrome.
+
+A extensão depende do servidor local e **não substitui** o processo Node.js.
+
+## Comandos de jogos
+
+| Comando | O que faz |
+| --- | --- |
+| `/bot` | Apresentação e informações do bot |
+| `/jogo` | Abre a seleção de modalidades |
+| `/jogo quiz` | Quiz com alternativas |
+| `/jogo numero` | Adivinhar número |
+| `/jogo palavra` | Palavra embaralhada |
+| `/jogo emoji` | Desafio de emojis |
+| `/jogo forca` | Jogo da forca |
+| `/r C` | Responde à rodada, quando aplicável |
+| `/config` | Menu exclusivo do proprietário |
+
+O primeiro acerto **processado na fila** é considerado vencedor; isso não equivale necessariamente à ordem em que os participantes digitam no celular. Outros detalhes e limites estão no código e nas configurações.
+
+## Segurança e privacidade
+
+- O acesso administrativo usa um identificador de proprietário validado.
+- Grupos precisam ser autorizados para executar jogos.
+- O monitor escuta apenas no endereço local (loopback).
+- `.env`, `auth/`, `auth.*/`, `runtime/` e logs ficam fora do Git.
+- O histórico local de mensagens é limitado; desconectar não apaga automaticamente dados, backups ou mensagens no WhatsApp.
+- Não exponha a porta 3100 na internet sem implantar autenticação, TLS e controles apropriados.
+- A biblioteca Baileys **não é uma integração oficial do WhatsApp**.
+
+Leia `LEGAL_SETUP.md` e os documentos de privacidade e termos em `monitor/legal-documents.json` antes de disponibilizar o sistema a terceiros. É necessário identificar o responsável pelo tratamento e oferecer contato real para solicitações.
+
+## Scripts
+
+```powershell
+npm.cmd run check  # Verificação de tipos
+npm.cmd test       # Suíte automatizada
+npm.cmd run build  # Compila e valida arquivos do painel
+npm.cmd run app    # Inicializa aplicação e monitor
 ```
 
-No Windows adapte os volumes para caminhos absolutos. Leia o QR em terminal privado. Não há portas nem painel web.
+## Organização
 
-Desconexão cancela partidas e bloqueia novos jogos. Reconexão usa um único timer com backoff de 1 até 60s e jitter. Logout, sessão inválida, conexão substituída ou bloqueio exigem intervenção manual. Em logout, pare o serviço, arquive a pasta de sessão com segurança e conecte novamente. SIGINT/SIGTERM fecha socket e limpa timers.
+```text
+src/
+  bot/          # Integração, painel interno e roteamento
+  games/        # Jogos, sessões e gerenciador
+  services/     # Fila, validação, permissões e cooldown
+  config/       # Configurações
+  data/         # Perguntas, emojis e variações
+  tests/        # Testes automatizados
+monitor/        # Dashboard, servidor local e documentos
+extension/      # Chrome Manifest V3 e side panel
+LEGAL_SETUP.md  # Checklist de privacidade para distribuição
+```
 
-## Integridade e limitações
+## Próximas melhorias
 
-- GameManager não importa Baileys. Reserva ocorre antes de qualquer envio assíncrono; operações por grupo são serializadas. Grupos distintos continuam em paralelo.
-- Vencedor e FINISHING são registrados antes de aguardar anúncio. Timeout é cancelado e não há retry de vitória: uma falha de envio pode ocultar o anúncio, mas não gera outro vencedor.
-- Respostas capturam ID da sessão antes da fila. Timeout também verifica ID. Citações de perguntas antigas são descartadas. Respostas anteriores à publicação, duplicadas ou após o deadline não vencem.
-- WhatsApp fornece timestamps com resolução de segundos. Por segurança, mensagens do mesmo segundo parcial da publicação são ignoradas: aguarde até o próximo segundo para responder. Não existe identificador de rodada no texto de um palpite simples não citado. Timestamp incorreto ou atrasos da rede são uma limitação; cite a pergunta atual para eliminar ambiguidade entre rodadas. A proteção combina timestamp, sessão capturada e ID da pergunta citada.
-- Só mensagens notify sem requestId, texto direto e idade até 15s são elegíveis. Histórico, sincronização, edições, revogações, mídias e envelopes não textuais são ignorados conservadoramente. Mensagens anteriores ao boot são descartadas. Editar uma mensagem depois de seu processamento não desfaz uma vitória válida.
-- A sincronização inicial padrão do Baileys é mantida para carregar mapeamentos LID. Histórico completo está desativado; mensagens antigas sincronizadas nunca são encaminhadas aos jogos.
-- Cache de IDs é limitado a 10000 entradas com TTL de 5min; cooldowns vencidos são removidos. Histórico de perguntas por grupo/modalidade é limitado.
-- Credenciais usam useMultiFileAuthState para o único processo solicitado; a documentação alerta para custo de I/O em escala. Não compartilhe a sessão entre processos.
-- Baileys é não oficial, sem garantia de continuidade pelo WhatsApp. Mudanças do serviço podem exigir atualização. Revise documentação e testes antes de atualizar. Não há publicidade ou disparos em massa.
-- sendMessage confirma envio conforme a biblioteca, não leitura/recebimento por todos. Falha explícita cancela a reserva sem ativar rodada invisível.
+- Fluxo de cadastro de perfis com armazenamento adequado
+- Estatísticas por grupo, conforme necessidade
+- Testes visuais e de ponta a ponta no Chrome
+- Refinamento de políticas e canais de suporte antes de distribuição comercial
 
-Interfaces verificadas nos tipos da versão instalada: WAMessageKey.participantAlt, remoteJidAlt, signalRepository.lidMapping.getPNForLID, cachedGroupMetadata, messages.upsert, DisconnectReason e useMultiFileAuthState.
+---
 
-Referências oficiais: [migração v7 e LIDs](https://github.com/WhiskeySockets/baileys.wiki-site/blob/main/docs/migration/to-v7.0.0.md), [eventos de mensagens](https://github.com/WhiskeySockets/baileys.wiki-site/blob/main/docs/socket/receiving-updates.md), [Baileys](https://github.com/WhiskeySockets/Baileys).
+<div align="center">
 
-## Manutenção e expansão
+Desenvolvido por **ETH Tecnologia** · [GitHub de ThzEverton](https://github.com/ThzEverton)
 
-Em `src/data/questions.ts`, cada item tem pergunta, resposta de exibição, quatro alternativas e letra correta. São 110 perguntas em categorias variadas. Acrescente itens e rode os testes. `words.ts` e `emojis.ts` contêm dicas e aliases explícitos; não há correspondência aproximada. Dicas desambiguam as palavras embaralhadas.
-
-Para adicionar modalidade, implemente Game.create e Game.guess, registre em game-types.ts e registry.ts, acrescente defaults de modalidade/duração, menu, parser e testes. Jogos são síncronos e independentes do transporte. Só o gerenciador envia mensagens e administra sessões. GroupQueue, ConfigStore e a interface Send delimitam infraestrutura. Persistência futura exigirá repositório e transações distribuídas no gerenciador, sem reescrever os jogos; não basta criar réplicas do estado em memória.
-
-## Validação manual final
-
-Conecte via QR, autorize o grupo e execute `/jogo quiz`. Envie a alternativa correta com dois participantes e confirme uma única menção vencedora. Tente iniciar outro jogo durante a rodada, aguarde o intervalo e execute `/jogo forca`. Verifique que participante comum e administrador não conseguem `/config jogos off`, mas o proprietário consegue. Essa etapa depende da sua conta WhatsApp e deve ser realizada no seu ambiente.
+</div>
