@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: eth-whatsapp-bot
+    runtime: node
+    plan: starter
+    region: ohio
+    buildCommand: npm ci && npm run build
+    startCommand: node online/render.mjs
+    healthCheckPath: /healthz
+    disk:
+      name: whatsapp-data
+      mountPath: /opt/render/project/src/persistent
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: AUTH_DIR
+        value: /opt/render/project/src/persistent/auth
+      - key: CONFIG_FILE
+        value: /opt/render/project/src/persistent/config.json
+      - key: BOT_GATEWAY_TOKEN
+        sync: false
+      - key: OWNER_JID
+        sync: false
+      - key: ALLOWED_GROUP_IDS
+        value: ""
+      - key: LOG_LEVEL
+        value: info

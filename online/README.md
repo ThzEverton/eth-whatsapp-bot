@@ -70,3 +70,22 @@ O comando `node online/build.mjs`, executado na raiz do repositório local, sinc
 7. Revise os documentos de privacidade e informe controlador e canal de contato antes do uso com terceiros.
 
 A extensão atual aponta para localhost; não é migrada automaticamente para o domínio remoto. Seu uso remoto requer uma atualização específica do mecanismo de ligação e revisão de permissões do Chrome.
+
+## Render: serviço persistente
+
+O arquivo `render.yaml` da raiz permite iniciar um **Web Service pago** no Render por Blueprint. Ele compila o Node.js e executa `node online/render.mjs`, que mantém o monitor e o gateway em processos separados, no mesmo container.
+
+O serviço disponibiliza apenas o gateway na porta `PORT`; `/healthz` responde à verificação do Render sem expor estado da conta. As rotas de operação exigem `BOT_GATEWAY_TOKEN`. O monitor e o painel interno permanecem acessíveis somente em `127.0.0.1:3100`.
+
+O disco persistente é montado em `/opt/render/project/src/persistent` e armazena `auth/` e `config.json`. Nunca configure duas instâncias compartilhando essa autenticação. O QR de conexão e eventuais ações de sessão exigem supervisão cuidadosa.
+
+### Para conectar com a Vercel
+
+1. Faça o push dos commits ao GitHub.
+2. Em [Render](https://dashboard.render.com/), crie um Blueprint usando `render.yaml`. **O plano Starter e o disco têm custo**; confirme o valor antes de aprovar.
+3. Informe `OWNER_JID` e gere um `BOT_GATEWAY_TOKEN` longo e aleatório. Armazene somente nas variáveis do Render e da Vercel, nunca no Git.
+4. Configure na Vercel `BOT_GATEWAY_URL=https://NOME-DO-SERVICO.onrender.com` e `BOT_GATEWAY_TOKEN` com o mesmo segredo.
+5. Configure `ADMIN_PASSWORD` e `SESSION_SECRET` na Vercel. Ative proteção anti-força-bruta no acesso ao painel.
+6. Teste com conta WhatsApp de homologação e confirme que a autenticação permanece após um redeploy.
+
+O Render Free não é apropriado para essa instalação com sessão de arquivos, pois hiberna e não permite disco persistente. O uso do Render **não elimina os riscos do Baileys não oficial**.

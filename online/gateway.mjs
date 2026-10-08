@@ -7,6 +7,7 @@ const port=Number(process.env.GATEWAY_PORT||3200);
 http.createServer(async(req,res)=>{
  res.setHeader('Cache-Control','no-store');
  res.setHeader('Content-Type','application/json; charset=utf-8');
+ if(req.url==='/healthz'&&req.method==='GET'){res.writeHead(200).end(JSON.stringify({ok:true}));return}
  const provided=req.headers.authorization?.replace(/^Bearer /,'')||'';
  const a=Buffer.from(provided),b=Buffer.from(secret);
  if(a.length!==b.length||!timingSafeEqual(a,b)){res.writeHead(401).end(JSON.stringify({error:'Nao autorizado'}));return}
@@ -19,4 +20,4 @@ http.createServer(async(req,res)=>{
   const target=await fetch('http://127.0.0.1:3100'+req.url,{method:req.method,headers:{Origin:'http://127.0.0.1:3100','Content-Type':'application/json'},body:mutation?body:undefined,signal:AbortSignal.timeout(18000)});
   res.writeHead(target.status).end(await target.text());
  }catch{res.writeHead(502).end(JSON.stringify({error:'Monitor local indisponivel'}))}
-}).listen(port,'127.0.0.1',()=>console.log('Gateway local ativo na porta '+port));
+}).listen(port,process.env.GATEWAY_HOST||'127.0.0.1',()=>console.log('Gateway ativo na porta '+port));
