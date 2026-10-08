@@ -1,0 +1,12 @@
+{
+  "name": "eth-whatsapp-online",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "check": "node --check 'api/[...path].js' && node --check middleware.js && node --check gateway.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

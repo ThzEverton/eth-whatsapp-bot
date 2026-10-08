@@ -1,0 +1,14 @@
+import {strict as assert} from 'node:assert';
+import {readFile} from 'node:fs/promises';
+import {issue,valid} from './auth.mjs';
+const secret='test-only-very-long-and-random-configuration-secret';
+const token=await issue(secret);
+assert.equal(await valid(token,secret),true);
+assert.equal(await valid(token+'x',secret),false);
+assert.equal(await valid(token,'wrong-secret'),false);
+assert.equal(await valid('',secret),false);
+const page=await readFile(new URL('./public/index.html',import.meta.url),'utf8');
+assert.match(page,/href="\/online.css"/);
+assert.match(page,/src="\/online.js"/);
+assert.match(page,/window.ETH_ONLINE=true/);
+console.log('Online: assinatura, alteracao de cookie e assets verificados.');
