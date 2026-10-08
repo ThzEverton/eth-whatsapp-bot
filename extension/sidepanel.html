@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ETH / WhatsApp</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <div id="offline" role="status">
+      <h1>Jogos ao lado do WhatsApp</h1>
+      <p>
+        Inicie o sistema no computador com <code>npm.cmd run app</code>. Depois,
+        recarregue o painel para conectar por QR.
+      </p>
+      <button id="retry" type="button">Conectar ao sistema</button
+      ><a href="http://localhost:3100" target="_blank" rel="noopener"
+        >Abrir painel em uma janela</a
+      >
+    </div>
+    <iframe
+      id="manager"
+      title="Gerenciamento de jogos e grupos"
+      hidden
+    ></iframe>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
