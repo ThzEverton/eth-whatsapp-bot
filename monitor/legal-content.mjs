@@ -1,0 +1,171 @@
+export const legalVersion = "2026-10-08";
+export const legalSections = [
+  {
+    "id": "privacidade",
+    "title": "Política de Privacidade",
+    "sections": [
+      [
+        "Responsável e contato",
+        "Este aviso descreve a instalação local do ETH — Jogos para WhatsApp. A pessoa ou organização que opera a instalação deve identificar o responsável pelo tratamento e disponibilizar um canal para solicitações. Esses dados ainda não foram informados. Antes de oferecer o sistema a terceiros, complete essa identificação e defina as responsabilidades aplicáveis."
+      ],
+      [
+        "Dados tratados",
+        "O sistema pode observar mensagens de grupos e conversas privadas da conta conectada: texto, legendas de imagens e vídeos, nome exibido, identificadores de remetente e conversa, ID da mensagem, horário e indicação de envio. Arquivos de mídia não são baixados para o painel; são exibidas identificações do tipo de mídia. Também são tratados nomes e identificadores de grupos, configurações, estado das partidas, palpites e resultados em memória, credenciais da conexão e registros técnicos."
+      ],
+      [
+        "Finalidades e fundamento",
+        "Esses dados permitem conectar a conta, mostrar conversas, enviar mensagens solicitadas pelo operador, executar jogos, administrar grupos e diagnosticar falhas. Quem oferece a instalação a outras pessoas deve documentar a finalidade e a base legal adequada para cada tratamento, considerando também os participantes dos grupos. Conectar pelo QR ou autorizar um grupo não representa consentimento coletivo de seus participantes. Este aviso não define uma base legal universal nem certifica conformidade com a LGPD."
+      ],
+      [
+        "Armazenamento e retenção",
+        "O painel mantém até 2.000 mensagens observadas no arquivo local runtime/messages.json. Mensagens mais antigas são substituídas quando esse limite é excedido; não há prazo automático por dias. As configurações e os registros técnicos permanecem no computador até sua remoção pelo responsável. Partidas são mantidas em memória e não sobrevivem ao reinício. Credenciais ficam na pasta de autenticação. Desconectar invalida o vínculo pelo WhatsApp e arquiva a pasta local; esse arquivo não é apagado automaticamente. Desconectar não exclui o histórico do painel nem as mensagens no WhatsApp."
+      ],
+      [
+        "Compartilhamento e serviços externos",
+        "O computador comunica-se com o WhatsApp para autenticação, sincronização e envio de mensagens. O funcionamento e eventuais transferências internacionais desse serviço seguem seus próprios termos e política. A integração usa a biblioteca Baileys, que não é uma integração oficial do WhatsApp. Esta implementação não contém publicidade, ferramentas de análise de audiência, venda de dados ou envio automático de conversas a serviços de inteligência artificial. Serviços adicionados futuramente exigem avaliação e atualização deste aviso."
+      ],
+      [
+        "Segurança e acesso local",
+        "O painel escuta no endereço de loopback do computador e usa uma chave aleatória para acessar o processo interno; ações do navegador verificam a origem local. Esses controles não substituem a segurança do computador. Os arquivos locais não recebem uma camada própria de criptografia em repouso. Restrinja acesso ao dispositivo, credenciais, QR e backups. Não exponha a porta do painel na internet sem implantar autenticação e controles apropriados."
+      ],
+      [
+        "Direitos e solicitações",
+        "Conforme os requisitos aplicáveis da LGPD, titulares podem solicitar confirmação e acesso, correção, informações sobre compartilhamento e medidas como anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados irregularmente. Quando o tratamento depender de consentimento, podem solicitar sua revogação e a eliminação nos limites legais. Há também direitos de portabilidade e oposição nas hipóteses legais. Encaminhe o pedido ao responsável pela instalação, sem compartilhar QR ou credenciais. O canal de contato público ainda precisa ser informado; os direitos não são atendidos por um formulário fictício neste painel."
+      ],
+      [
+        "Participantes e menores",
+        "O responsável deve informar aos participantes que o sistema observa mensagens e administra jogos, limitar a coleta ao necessário e considerar dados de pessoas que não operam o painel. O tratamento de dados de crianças e adolescentes exige avaliação específica e respeito ao seu melhor interesse. Evite grupos com dados sensíveis ou uso por menores sem os cuidados legais correspondentes."
+      ],
+      [
+        "Quem toma as decisões sobre os dados",
+        "Na instalação própria, o responsável pela conta e pela utilização do sistema decide a finalidade do tratamento. Se o software for fornecido ou operado para um cliente, as funções de controlador e operador devem ser definidas conforme as decisões reais de cada parte, em contrato ou instruções documentadas. A marca ETH, por si só, não determina quem é controlador. Identificação completa e canal de privacidade ainda precisam ser publicados antes da disponibilização a terceiros."
+      ],
+      [
+        "Transparência para participantes dos grupos",
+        "Antes de ativar o bot, informe de modo acessível que mensagens e identificadores podem ser observados pelo sistema local, a finalidade dos jogos, quem pode ver o painel e como contatar o responsável. Autorizar o grupo no painel não substitui informação adequada, avaliação da base legal ou eventual consentimento exigido em situações específicas."
+      ],
+      [
+        "Como exercer seus direitos",
+        "Solicitações devem ser encaminhadas ao canal que o responsável pela instalação deve divulgar. O responsável precisa verificar a identidade de modo proporcional, registrar o pedido, avaliar os dados sob seu controle e informar o resultado ou a justificativa legal de eventual retenção. Não envie documentos completos, QR codes ou senhas pelo chat do grupo. A exclusão de uma mensagem do histórico local não apaga cópias existentes no WhatsApp, dispositivos de participantes ou backups."
+      ],
+      [
+        "Incidentes de segurança e notificações",
+        "Suspeitas de acesso indevido, extravio de credenciais ou exposição do histórico devem ser avaliadas pelo responsável, com contenção, registro e análise de risco. Incidentes com dados pessoais que possam causar risco ou dano relevante podem exigir comunicação à ANPD e aos titulares nos prazos e condições da regulamentação aplicável. A simples existência desta política não significa que haja monitoramento automático de incidentes."
+      ],
+      [
+        "Atualizações",
+        "Esta versão foi preparada em 8 de outubro de 2026 para o funcionamento local descrito. Mudanças de finalidade, coleta, retenção ou compartilhamento exigem revisão e comunicação adequada. A identificação do responsável, o contato e o fundamento de cada tratamento devem ser completados antes da distribuição a terceiros."
+      ]
+    ]
+  },
+  {
+    "id": "termos",
+    "title": "Termos de Uso",
+    "sections": [
+      [
+        "Objeto",
+        "O ETH — Jogos para WhatsApp é um sistema local de conexão por QR, painel de conversas, gerenciamento de grupos e jogos. Cada instalação atende uma conta WhatsApp. O serviço local deve permanecer ativo para os recursos funcionarem. O operador pode selecionar e ativar grupos da conta conectada."
+      ],
+      [
+        "Autorização e responsabilidade",
+        "Conecte apenas contas que você tem autorização para administrar. Ao ativar um grupo, observe suas regras e informe os participantes sobre o funcionamento do sistema e o tratamento de dados. O acesso ao painel não concede autorização para divulgar conversas, contornar permissões do WhatsApp ou tratar dados de terceiros para finalidades incompatíveis."
+      ],
+      [
+        "Funcionamento e limites",
+        "Jogos possuem duração, intervalos e configurações individuais. O primeiro acerto processado na fila é o vencedor; não existe garantia sobre quem digitou primeiro no telefone. Atrasos, falhas de rede e mensagens fora da janela de processamento podem afetar uma rodada. Partidas são encerradas por desconexões ou reinícios. O histórico local não é uma cópia completa do WhatsApp."
+      ],
+      [
+        "Conexão e encerramento",
+        "O QR autoriza um aparelho adicional da conta. Proteja-o como uma credencial. Desconectar WhatsApp encerra o vínculo deste sistema; uma nova conexão pode ser solicitada pelo painel. Esse procedimento não cancela sua conta WhatsApp, não apaga conversas do serviço e não elimina automaticamente arquivos locais ou backups."
+      ],
+      [
+        "Integração independente",
+        "O projeto não é afiliado, patrocinado, aprovado ou fornecido pelo WhatsApp ou pela Meta. WhatsApp e suas marcas pertencem aos respectivos titulares. A biblioteca de integração é não oficial; mudanças do serviço, restrições da conta e atualizações da biblioteca podem interromper funcionalidades. Também se aplicam os termos do WhatsApp à conta utilizada."
+      ],
+      [
+        "Extensão",
+        "A extensão usa o painel lateral do Chrome e se comunica com o serviço local. A versão atual é disponibilizada para instalação local, com instruções no painel, e ainda não está publicada na Chrome Web Store. Não há instalação silenciosa nem cobrança integrada. A instalação exige uma ação explícita do usuário no navegador."
+      ],
+      [
+        "Responsabilidades e direitos legais",
+        "O operador é responsável pelas mensagens que solicita enviar, pelas permissões de conta e grupos e pela segurança da instalação. O software pode apresentar indisponibilidade ou defeitos. Estes termos não afastam responsabilidades, garantias, direitos do consumidor ou direitos de proteção de dados que sejam obrigatórios pela legislação aplicável. Para oferta comercial, identifique o fornecedor e estabeleça suporte, preço e condições antes de contratar."
+      ],
+      [
+        "Comandos e jogos nos grupos",
+        "O operador deve habilitar somente grupos autorizados e configurar modalidades, duração, intervalos e permissões. Jogos são recreativos, sem apostas ou premiações financeiras. A resposta vencedora depende da ordem de processamento recebida pelo bot; conexão instável, mensagens duplicadas ou reinícios podem interferir no resultado. Participantes devem respeitar as regras do grupo e podem deixar de participar."
+      ],
+      [
+        "Disponibilidade, atualizações e suporte",
+        "A operação depende do computador ligado, do serviço local, da conta conectada, do Chrome e da disponibilidade do WhatsApp. Não há promessa de funcionamento ininterrupto nem de compatibilidade permanente com versões futuras do WhatsApp. Atualizações podem exigir reinício do monitor, recarregamento da extensão e novos testes. Canais de suporte, condições comerciais e responsabilidades de manutenção precisam ser definidos antes de uma distribuição comercial."
+      ],
+      [
+        "Lei aplicável e alterações",
+        "A operação no Brasil deve observar a legislação brasileira aplicável, incluindo proteção de dados e direitos do consumidor quando pertinentes. Não se estabelece aqui renúncia a direitos nem foro obrigatório que restrinja acesso à Justiça. Alterações relevantes nos termos devem ser comunicadas ao usuário antes de sua aplicação."
+      ]
+    ]
+  },
+  {
+    "id": "cookies",
+    "title": "Cookies e armazenamento",
+    "sections": [
+      [
+        "Navegador",
+        "Esta implementação do painel não cria cookies de publicidade, rastreamento ou análise de audiência, nem utiliza localStorage ou sessionStorage para histórico ou consentimentos. Os dados do painel são lidos do serviço local. O WhatsApp Web e o navegador mantêm seus próprios cookies e dados conforme suas políticas."
+      ],
+      [
+        "Computador e extensão",
+        "A extensão carrega a interface do serviço local. Mensagens, configurações, credenciais e registros técnicos são arquivos do sistema no computador, e não cookies. Limpar cookies do navegador não remove esses arquivos nem encerra necessariamente o vínculo da conta."
+      ],
+      [
+        "Dados técnicos e limites do navegador",
+        "O painel e a extensão podem realizar requisições locais e usar recursos normais de cache do navegador, além de armazenamento gerido pelo próprio Chrome e pelo WhatsApp Web. O histórico de mensagens e as credenciais desta instalação são mantidos principalmente em arquivos locais do serviço, conforme descrito na Política de Privacidade. A ausência de cookies de publicidade não significa ausência de tratamento de dados pessoais."
+      ],
+      [
+        "Mudanças futuras",
+        "A inclusão de armazenamento no navegador ou ferramentas de rastreamento exige atualização desta informação e avaliação das opções de escolha e bases legais aplicáveis. Não se solicita aceite de cookies que esta implementação não utiliza."
+      ]
+    ]
+  },
+  {
+    "id": "uso",
+    "title": "Uso aceitável e segurança",
+    "sections": [
+      [
+        "Uso permitido",
+        "Use os jogos para entretenimento e administração de grupos com autorização. Respeite regras dos grupos, privacidade, direitos autorais e decisões dos participantes. Informe o responsável sobre mensagens indevidas, erros e suspeitas de acesso não autorizado."
+      ],
+      [
+        "Uso proibido",
+        "Não use o sistema para spam, publicidade não solicitada, disparos em massa, fraude, assédio, perseguição, coleta clandestina, divulgação de dados pessoais sem fundamento, discriminação, exploração de menores, conteúdo ilícito ou tentativas de contornar controles do WhatsApp. Não utilize os jogos como plataforma de apostas, pagamentos ou promessa de ganhos financeiros."
+      ],
+      [
+        "Proteção da conta",
+        "Não compartilhe QR, credenciais, tokens do painel ou cópias da pasta de autenticação. Mantenha o computador e as dependências atualizados. Revise os aparelhos conectados no WhatsApp. Em caso de comprometimento, desconecte o aparelho, restrinja o acesso local e avalie o alcance do incidente."
+      ],
+      [
+        "Regras para participantes",
+        "Não envie dados sensíveis, documentos, senhas ou informações privadas como respostas aos jogos. Não explore falhas, não automatize respostas para prejudicar a participação de outras pessoas e respeite solicitações de interrupção de mensagens. Administradores devem comunicar as regras e desativar o bot caso o grupo não seja apropriado para a atividade."
+      ],
+      [
+        "Resposta a incidentes",
+        "Em caso de suspeita de comprometimento, interrompa a operação quando seguro, revogue o aparelho vinculado no WhatsApp, proteja o computador e preserve os registros indispensáveis para análise. Avalie se houve acesso a mensagens, identificadores ou credenciais e encaminhe o incidente ao responsável. Não divulgue logs com tokens, identificadores ou conteúdo de conversas em canais públicos."
+      ],
+      [
+        "Incidentes e suporte",
+        "O responsável pela instalação deve oferecer canal de suporte e de privacidade, verificar relatos e adotar medidas proporcionais. Incidentes envolvendo dados pessoais exigem avaliação das obrigações legais de comunicação e mitigação. Esses canais ainda precisam ser identificados para uma oferta a terceiros."
+      ]
+    ]
+  }
+];
+
+const escape = (value) =>
+  value.replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+export function legalMarkup() {
+  return `<section id="legal-center" class="legal-center" aria-labelledby="legal-title"><h2 id="legal-title">Transparência e documentos</h2><p>Conheça as regras de uso e como os dados são tratados nesta instalação.</p><nav aria-label="Documentos do sistema">${legalSections.map((doc) => `<button type="button" data-legal="${doc.id}">${escape(doc.title)}</button>`).join("")}</nav><p class="legal-pending">Responsável e canal de privacidade: aguardando identificação do operador. Documentos preparados para uso local; complete esses dados antes de oferecer o sistema a terceiros.</p><small>Versão de 8 de outubro de 2026</small></section><dialog id="legal-dialog" aria-labelledby="legal-dialog-title"><h2 id="legal-dialog-title"></h2><div id="legal-body"></div><p class="legal-sources">Referências: <a href="https://planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709compilado.htm" target="_blank" rel="noopener noreferrer">LGPD</a> e <a href="https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados/direito-dos-titulares" target="_blank" rel="noopener noreferrer">direitos dos titulares — ANPD</a>.</p><div class="controls"><button type="button" id="legal-close">Fechar documento</button></div></dialog>`;
+}
