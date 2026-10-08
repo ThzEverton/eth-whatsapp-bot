@@ -89,3 +89,22 @@ O disco persistente é montado em `/opt/render/project/src/persistent` e armazen
 6. Teste com conta WhatsApp de homologação e confirme que a autenticação permanece após um redeploy.
 
 O Render Free não é apropriado para essa instalação com sessão de arquivos, pois hiberna e não permite disco persistente. O uso do Render **não elimina os riscos do Baileys não oficial**.
+
+## Demonstração multiusuário: máximo de 5 contas
+
+A demo aceitará **cinco contas distintas**, cada uma com login, identidade, configurações, histórico e sessão WhatsApp próprios. Quando os slots 1–5 forem ocupados, o cadastro precisa retornar “Vagas da demonstração encerradas”, sem derrubar contas já cadastradas.
+
+O arquivo `online/demo-capacity.sql` prepara a reserva transacional de cinco slots no Supabase (PostgreSQL), com trava contra cadastros concorrentes e RLS. Esse script **ainda não foi aplicado em banco algum**.
+
+**ATENÇÃO: A demo multiusuário ainda não está pronta para uso público.** A versão atual do `online/api/[...path].js` autentica com uma senha administrativa compartilhada e encaminha todas as requisições ao mesmo processo WhatsApp. Não distribua senhas de acesso, não convide usuários e não interprete os cinco slots do SQL como isolamento de sessão pronto.
+
+Próximas etapas obrigatórias antes do convite aos participantes:
+
+1. Substituir a senha compartilhada por login individual e validar o token do usuário em **toda** rota de API.
+2. Criar supervisor de até cinco conexões Baileys independentes, com diretórios de autenticação e estado separados por ID interno imutável; nunca confiar em um `userId` enviado pelo cliente.
+3. Associar chats, grupos, configurações, logs, comandos e QR code apenas ao usuário autenticado; garantir testes de acesso cruzado (A não lê ou controla B).
+4. Persistir as sessões WhatsApp em armazenamento protegido que sobreviva a reinícios; o filesystem efêmero do Render Free não garante isso.
+5. Integrar cadastro com `reserve_demo_slot` de maneira server-side, com recuperação de erro de capacidade e políticas de exclusão de dados.
+6. Implementar rate limit, controle de custos/recursos e revisão dos termos, políticas e autenticação antes de abrir a demo.
+
+Não basta permitir cinco logins com o backend atual de conta única.
