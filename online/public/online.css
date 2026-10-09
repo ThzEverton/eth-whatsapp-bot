@@ -1,5 +1,4 @@
-/* Cloud dashboard only: extension install is intended for localhost. */
-#install-extension{display:none!important}
+/* A extensao do Chrome tambem usa o painel online. */
 .online-signout{position:fixed;right:18px;top:18px;z-index:18;border:1px solid #d3e2da;border-radius:9px;background:white;color:#087f55;padding:9px 14px;font:600 12px Inter,system-ui;cursor:pointer;box-shadow:0 5px 20px #172b3614}
 .online-signout:focus-visible{outline:3px solid #8edbbc}
 @media(max-width:900px){.online-signout{position:static;display:block;margin:10px 16px 0 auto}}

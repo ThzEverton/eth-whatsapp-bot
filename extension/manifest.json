@@ -1,15 +1,18 @@
 {
   "manifest_version": 3,
   "name": "ETH / WhatsApp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "minimum_chrome_version": "116",
-  "description": "Conecte por QR e gerencie jogos e grupos ao lado do WhatsApp Web.",
-  "permissions": ["sidePanel"],
-  "host_permissions": ["https://web.whatsapp.com/*", "http://localhost:3100/*"],
+  "description": "Gerencie jogos e grupos no painel lateral do Chrome, na web ou localmente.",
+  "permissions": ["sidePanel", "storage"],
+  "host_permissions": [
+    "https://eth-whatsapp-bot.onrender.com/*",
+    "http://localhost:3100/*"
+  ],
   "background": { "service_worker": "background.js" },
-  "action": { "default_title": "Abrir jogos e grupos" },
+  "action": { "default_title": "Abrir ETH WhatsApp Bot" },
   "side_panel": { "default_path": "sidepanel.html" },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; frame-src http://localhost:3100;"
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://eth-whatsapp-bot.onrender.com http://localhost:3100;"
   }
 }

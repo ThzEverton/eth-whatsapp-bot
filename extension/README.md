@@ -1,23 +1,25 @@
-## Instalar pelo painel
+# Extensão ETH / WhatsApp — painel online e local
 
-Abra http://localhost:3100 e clique em **Adicionar ao Google Chrome**. Baixe o ZIP, extraia a pasta `extension` e siga os passos exibidos no painel. Esta extensão ainda não está publicada na Chrome Web Store.
+A extensão abre o ETH WhatsApp Bot no painel lateral do Google Chrome. Na aba **Painel online**, você não precisa iniciar servidor local. Se quiser, pode voltar ao **Painel local** (localhost).
 
-## Desconectar e reconectar
+## Instalar
 
-Use **Desconectar WhatsApp** para encerrar o vínculo desta conta com o sistema. A sessão local é arquivada. Em seguida, clique em **Conectar WhatsApp** e leia um novo QR.
+1. Acesse https://eth-whatsapp-bot.onrender.com na instalação da demonstração que já usa.
+2. Em **Configurações gerais → Adicionar ao Google Chrome**, baixe a extensão (`/extension.zip`).
+3. Extraia o ZIP. Abra `chrome://extensions`, ative **Modo do desenvolvedor**, escolha **Carregar sem compactação** e selecione a pasta `extension` extraída.
+4. No site, clique em **Gerar código para extensão** e copie o código (válido por 5 minutos e de uso único).
+5. Clique no ícone ETH / WhatsApp do Chrome, selecione **Painel online**, cole o código e vincule a extensão.
 
-# ETH ? painel lateral do WhatsApp
+A extensão usa **a mesma instalação e a mesma vaga** que você já tem no site. Nenhuma vaga é criada ao vincular. Pode abrir o painel ao lado do WhatsApp Web ou em outra aba.
 
-1. Na pasta do sistema, execute `npm.cmd run app` (Node.js 24).
-2. No Chrome, abra `chrome://extensions`, ative **Modo do desenvolvedor** e clique em **Carregar sem compacta??o**. Selecione esta pasta `extension`.
-3. Abra o WhatsApp Web e clique no ?cone **ETH ? Jogos para WhatsApp** na barra de extens?es. O painel abre na lateral nativa do navegador.
-4. No celular, abra **Aparelhos conectados ? Conectar aparelho** e leia o QR do painel. A conex?o do sistema ? um aparelho adicional; o WhatsApp Web continua aberto.
-5. Escolha qualquer grupo listado, clique em **Autorizar grupo** e selecione modalidade e varia??o. Salve tempos, intervalos e varia??es padr?o em **Gerenciar grupo**.
+## Modo local
 
-O servi?o local precisa continuar aberto. O painel tamb?m est? em http://localhost:3100. Se j? houver uma sess?o conectada, o QR n?o aparece novamente. Cada instala??o usa uma conta WhatsApp; o projeto n?o oferece hospedagem simult?nea de contas de v?rios clientes.
+Na extensão, clique em **Painel local**. Execute `npm.cmd run app` na pasta do projeto e abra `http://localhost:3100`. A extensão exibe o painel do computador sem precisar de código da demonstração.
 
-A extens?o n?o l? o DOM nem altera o c?digo do WhatsApp. A API lateral segue a [documenta??o oficial do Chrome](https://developer.chrome.com/docs/extensions/reference/api/sidePanel). As ?nicas permiss?es s?o o painel lateral e acesso a WhatsApp Web/servi?o local. A conex?o usa [Baileys](https://github.com/WhiskeySockets/Baileys).
+## Segurança e limitações
 
-S?o 21 temas em cada um dos cinco jogos, al?m do cl?ssico: Animais, Frutas, Cozinha, Esportes, Espa?o, Natureza, M?sica, Transportes, Profiss?es, Tecnologia, Casa, Escola, Clima, Jardim, Vida marinha, Doces, Aventura, Festas, Roupas, Ferramentas e Lugares. Quiz, palavra, emoji e forca usam conte?do de cada tema; n?mero usa problemas de contagem e opera??es de cada contexto.
-
-Tamb?m pode iniciar pelo grupo: `/jogo quiz espaco`, `/jogo forca animais` ou `/jogo numero escola`. A varia??o passada no comando ou no seletor de partida vale apenas para essa rodada. A varia??o padr?o salva vale para `/jogo modalidade` sem tema.
+- Ainda não está publicada na Chrome Web Store; a instalação é manual.
+- A chave vinculada fica em `chrome.storage.local`, apenas na extensão. O código de vinculação expira após cinco minutos.
+- Desvincular revoga o token da extensão, mas a instalação web permanece ativa.
+- A demo do Render Free pode perder a sessão após deploy ou reinício. Nesse caso, gere um novo código.
+- A integração com WhatsApp via Baileys é não oficial.

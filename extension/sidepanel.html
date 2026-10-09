@@ -1,28 +1,40 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ETH / WhatsApp</title>
-    <link rel="stylesheet" href="sidepanel.css" />
-  </head>
-  <body>
-    <div id="offline" role="status">
-      <h1>Jogos ao lado do WhatsApp</h1>
-      <p>
-        Inicie o sistema no computador com <code>npm.cmd run app</code>. Depois,
-        recarregue o painel para conectar por QR.
-      </p>
-      <button id="retry" type="button">Conectar ao sistema</button
-      ><a href="http://localhost:3100" target="_blank" rel="noopener"
-        >Abrir painel em uma janela</a
-      >
-    </div>
-    <iframe
-      id="manager"
-      title="Gerenciamento de jogos e grupos"
-      hidden
-    ></iframe>
-    <script src="sidepanel.js"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ETH / WhatsApp</title>
+  <link rel="stylesheet" href="sidepanel.css">
+</head>
+<body>
+  <nav class="mode-nav" aria-label="Escolher onde executar o bot">
+    <button id="mode-online" type="button" aria-pressed="true">Painel online</button>
+    <button id="mode-local" type="button" aria-pressed="false">Painel local</button>
+  </nav>
+  <section id="setup">
+    <div class="brand"><span class="brand-mark">ETH</span> WhatsApp Bot</div>
+    <h1>Seu painel do WhatsApp, direto no Chrome.</h1>
+    <p>Use sua instalação do site. Você não precisa instalar Node.js nem manter um servidor no computador.</p>
+    <p class="steps"><strong>1.</strong> Abra o <a href="https://eth-whatsapp-bot.onrender.com/" target="_blank" rel="noopener noreferrer">painel online</a> e vá em <strong>Configurações gerais → Adicionar ao Google Chrome</strong>.</p>
+    <p class="steps"><strong>2.</strong> Clique em <strong>Gerar código para extensão</strong> e copie o código de vinculação.</p>
+    <form id="pair-form">
+      <label for="pair-code">Código de vinculação (válido por 5 minutos)</label>
+      <input id="pair-code" name="code" placeholder="Cole o código aqui" autocapitalize="off" autocomplete="off" spellcheck="false" required maxlength="39">
+      <button id="pair-button" type="submit">Vincular esta extensão</button>
+    </form>
+    <p class="feedback" id="pair-feedback" role="status" aria-live="polite"></p>
+  </section>
+  <section id="local-offline" hidden>
+    <h1>Painel local</h1>
+    <p>Para usar sem hospedagem, execute <code>npm.cmd run app</code> no computador e mantenha o monitor aberto em <a href="http://localhost:3100" target="_blank" rel="noopener">localhost:3100</a>.</p>
+    <p id="local-feedback" class="feedback" role="status"></p>
+    <button id="local-retry" type="button">Conectar ao servidor local</button>
+  </section>
+  <section id="active" hidden>
+    <header class="toolbar"><strong id="active-title">ETH <span>/ WhatsApp</span></strong><button id="unlink" type="button" title="Desvincular esta extensão">Desvincular</button></header>
+    <p id="active-feedback" class="feedback" role="status" aria-live="polite"></p>
+    <iframe id="manager" title="Painel de gerenciamento do ETH WhatsApp Bot" hidden></iframe>
+  </section>
+  <script src="sidepanel.js"></script>
+</body>
 </html>
