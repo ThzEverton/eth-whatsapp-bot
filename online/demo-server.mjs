@@ -1,6 +1,6 @@
 import http from 'node:http';
 import {randomBytes,timingSafeEqual,createHash} from 'node:crypto';
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,rm} from 'node:fs/promises';
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -31,6 +31,24 @@ const server=http.createServer(async(req,res)=>{try{
  const url=new URL(req.url,'http://localhost');const route=url.pathname;
  res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');
  if(route==='/healthz')return json(res,200,{ok:true});
+ if(route==='/admin'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}).end(await readFile(path.join(root,'online/admin.html')));return;}
+ if(route.startsWith('/api/admin/')){
+  const secret=process.env.DEMO_ADMIN_SECRET||'';
+  const given=req.headers['x-admin-secret']||'';
+  if(secret.length<32||typeof given!=='string'||Buffer.byteLength(given)!==Buffer.byteLength(secret)||!timingSafeEqual(Buffer.from(given),Buffer.from(secret)))return json(res,403,{error:'Acesso negado'});
+  if(route==='/api/admin/list'&&req.method==='GET')return json(res,200,{max,installations:records.map(r=>({id:r.id,created:r.created,running:!!sessions.get(r.id)?.child&&sessions.get(r.id).child.exitCode===null}))});
+  if(route==='/api/admin/remove'&&req.method==='POST'){
+   if(!permittedOrigin(req))return json(res,403,{error:'Origem invalida'});
+   const payload=JSON.parse(await getBody(req));const id=payload.id;
+   if(typeof id!=='string'||!/^[a-f0-9]{24}$/.test(id))return json(res,400,{error:'Identificador invalido'});
+   const index=records.findIndex(r=>r.id===id);if(index<0)return json(res,404,{error:'Instalacao nao encontrada'});
+   const current=sessions.get(id);if(current?.child){current.child.kill('SIGTERM');}
+   sessions.delete(id);records.splice(index,1);await save();
+   await rm(path.join(data,id),{recursive:true,force:true});
+   return json(res,200,{ok:true,remaining:max-records.length});
+  }
+  return json(res,404,{error:'Nao encontrado'});
+ }
  if(route==='/api/demo/create'&&req.method==='POST'){
    if(!permittedOrigin(req))return json(res,403,{error:'Origem invalida'});
    const entry=await allocate();return entry?json(res,201,{key:entry.secret,remaining:max-records.length}):json(res,409,{error:'Vagas da demonstracao encerradas'});
