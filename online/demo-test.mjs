@@ -4,7 +4,7 @@ import {tmpdir} from 'node:os';import path from 'node:path';
 import assert from 'node:assert/strict';
 const dir=await mkdtemp(path.join(tmpdir(),'eth-demo-test-'));
 const port=19874;
-const child=spawn(process.execPath,['online/demo-server.mjs'],{env:{...process.env,PORT:String(port),DEMO_DATA_DIR:dir},stdio:'pipe'});
+const child=spawn(process.execPath,['online/demo-server.mjs'],{env:{...process.env,PORT:String(port),DEMO_DATA_DIR:dir,DEMO_ADMIN_SECRET:'senha-apenas-para-testes'},stdio:'pipe'});
 const origin='http://localhost:'+port;
 try{
  let ready=false;
@@ -22,5 +22,13 @@ try{
  const forbidden=await fetch(origin+'/api/panel');
  assert.equal(forbidden.status,401);
  const page=await fetch(origin+'/');assert.equal(page.status,200);assert.match(await page.text(),/demo-client.js/);
- console.log('PASSOU: 5 vagas, concorrencia, chaves independentes, acesso sem chave bloqueado, pagina');
+ const adminPage=await fetch(origin+'/admin');assert.equal(adminPage.status,200);assert.match(await adminPage.text(),/Gerenciar demonstração/);
+ const adminWrong=await fetch(origin+'/api/admin/list',{headers:{'x-admin-secret':'errada'}});assert.equal(adminWrong.status,403);
+ const adminList=await fetch(origin+'/api/admin/list',{headers:{'x-admin-secret':'senha-apenas-para-testes'}});assert.equal(adminList.status,200);
+ const list=await adminList.json();assert.equal(list.installations.length,5);
+ const target=list.installations[0].id;
+ const removed=await fetch(origin+'/api/admin/remove',{method:'POST',headers:{Origin:origin,'x-admin-secret':'senha-apenas-para-testes','Content-Type':'application/json'},body:JSON.stringify({id:target})});assert.equal(removed.status,200);
+ const remaining=await fetch(origin+'/api/demo/me');assert.equal((await remaining.json()).remaining,1);
+ const createAgain=await fetch(origin+'/api/demo/create',{method:'POST',headers:{Origin:origin}});assert.equal(createAgain.status,201);
+ console.log('PASSOU: 5 vagas, concorrencia, autenticacao, painel administrativo, exclusao e reposicao de vaga');
 }finally{child.kill('SIGTERM');await rm(dir,{recursive:true,force:true,maxRetries:10,retryDelay:100});}

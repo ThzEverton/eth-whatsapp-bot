@@ -9,6 +9,7 @@ const data=process.env.DEMO_DATA_DIR||path.join(root,'demo-runtime');
 const permittedOrigin=(req)=>{try{const origin=new URL(req.headers.origin);const host=req.headers.host;return origin.origin==='https://'+host||origin.origin==='http://'+host||origin.hostname.endsWith('.vercel.app')&&origin.protocol==='https:';}catch{return false;}};
 const ledger=path.join(data,'installations.json');
 const sessions=new Map();
+const adminAttempts=new Map();
 const max=5;
 const port=Number(process.env.PORT||10000);
 const json=(res,status,obj)=>{res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}).end(JSON.stringify(obj));};
@@ -35,7 +36,14 @@ const server=http.createServer(async(req,res)=>{try{
  if(route.startsWith('/api/admin/')){
   const secret=process.env.DEMO_ADMIN_SECRET||'';
   const given=req.headers['x-admin-secret']||'';
-  if(secret.length<32||typeof given!=='string'||Buffer.byteLength(given)!==Buffer.byteLength(secret)||!timingSafeEqual(Buffer.from(given),Buffer.from(secret)))return json(res,403,{error:'Acesso negado'});
+  const visitor=req.socket.remoteAddress||'desconhecido';
+  const now=Date.now();
+  const attempt=adminAttempts.get(visitor)||{failures:0,reset:now+60000};
+  if(now>attempt.reset){attempt.failures=0;attempt.reset=now+60000;}
+  if(attempt.failures>=5)return json(res,429,{error:'Muitas tentativas. Aguarde um minuto.'});
+  const valid=secret.length>0&&typeof given==='string'&&timingSafeEqual(createHash('sha256').update(secret).digest(),createHash('sha256').update(given).digest());
+  if(!valid){attempt.failures++;adminAttempts.set(visitor,attempt);return json(res,403,{error:'Acesso negado'});}
+  adminAttempts.delete(visitor);
   if(route==='/api/admin/list'&&req.method==='GET')return json(res,200,{max,installations:records.map(r=>({id:r.id,created:r.created,running:!!sessions.get(r.id)?.child&&sessions.get(r.id).child.exitCode===null}))});
   if(route==='/api/admin/remove'&&req.method==='POST'){
    if(!permittedOrigin(req))return json(res,403,{error:'Origem invalida'});
