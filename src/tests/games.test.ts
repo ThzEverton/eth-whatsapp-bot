@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
 import { questions } from "../data/questions.js";
-import { quiz } from "../games/quiz.js";
+import { quiz, quizFrom } from "../games/quiz.js";
 import { guessNumber } from "../games/guess-number.js";
 import { scramble } from "../games/scrambled-word.js";
 import { emojiGame } from "../games/emoji-game.js";
@@ -19,6 +19,25 @@ it("quiz evita perguntas recentes", () => {
   const r = quiz.create([]);
   for (let i = 0; i < 30; i++)
     expect(quiz.create([r.answer]).answer).not.toBe(r.answer);
+});
+it("quiz aceita o texto exato da alternativa correta e mantém letras válidas", () => {
+  const q = quizFrom([
+    {
+      question: "Qual esporte tem cesta?",
+      answer: "Basquete",
+      options: ["Futebol", "Basquete", "Tênis", "Natação"],
+      correct: "B",
+    },
+  ]);
+  const round = q.create([]);
+  expect(q.guess(round, "B").win).toBe(true);
+  expect(q.guess(round, "basquete").win).toBe(true);
+  expect(q.guess(round, "  BASQUETE  ").win).toBe(true);
+  expect(q.guess(round, "natação").valid).toBe(true);
+  expect(q.guess(round, "natação").win).toBe(false);
+  expect(q.guess(round, "A").win).toBe(false);
+  expect(q.guess(round, "basquete de rua").valid).toBe(false);
+  expect(round.prompt).toContain("escreva a alternativa por extenso");
 });
 it("números rejeitam textos, decimais e valores fora do intervalo", () => {
   const g = guessNumber(1, 100),

@@ -25,6 +25,7 @@ export interface GameRound {
     remaining?: number;
     min?: number;
     max?: number;
+    options?: string[];
   };
 }
 export interface GuessResult {

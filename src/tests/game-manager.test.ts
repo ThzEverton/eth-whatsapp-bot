@@ -82,6 +82,16 @@ describe("Integridade das partidas", () => {
     expect(wins()[0]!.mentions).toEqual([U]);
     expect(manager.session(A)).toBeUndefined();
   });
+  it("duas respostas por extenso têm somente um vencedor", async () => {
+    await manager.request(A, U, "quiz");
+    const text = manager.session(A)!.answer!;
+    await Promise.all([
+      manager.answer(msg(text, U)),
+      manager.answer(msg(text, V)),
+    ]);
+    expect(wins()).toHaveLength(1);
+    expect(manager.session(A)).toBeUndefined();
+  });
   it("duplicata de resposta gera uma vitória", async () => {
     await manager.request(A, U, "quiz");
     const m = msg(answer());
