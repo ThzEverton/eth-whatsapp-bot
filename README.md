@@ -4,7 +4,7 @@
 
 ### Jogos interativos e gerenciamento de grupos em tempo real
 
-**Bot para grupos do WhatsApp • Dashboard local • Extensão do Chrome • Configuração por grupo**
+**Bot para grupos do WhatsApp • Dashboard online e local • Extensão do Chrome • Configuração por grupo**
 
 ![Node.js](https://img.shields.io/badge/Node.js-24-339933?logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
@@ -18,7 +18,7 @@
 
 ## Visão geral
 
-O **ETH / WhatsApp** oferece minijogos em grupos com sessões independentes, processamento serializado de respostas e administração por um painel local. O painel permite acompanhar a conexão, autorizar grupos, consultar conversas observadas e alterar preferências usando modais. A extensão do Chrome abre uma versão compacta no painel lateral do navegador.
+O **ETH / WhatsApp** oferece minijogos em grupos com sessões independentes, processamento serializado de respostas e administração por um painel local. O painel permite acompanhar a conexão, autorizar grupos, consultar conversas observadas e alterar preferências usando modais. A extensão do Chrome abre uma versão compacta no painel lateral do navegador, conectada ao servidor online no Render ou ao monitor local.
 
 ## Funcionalidades
 
@@ -29,7 +29,7 @@ O **ETH / WhatsApp** oferece minijogos em grupos com sessões independentes, pro
 | **Partidas** | Uma sessão por grupo; um vencedor por rodada; intervalos e cooldowns |
 | **Administração** | Comandos restritos ao proprietário configurado, não a qualquer administrador |
 | **Dashboard** | Conexão, conversas locais, envio manual, indicadores e eventos |
-| **Extensão** | Interface compacta ao lado do WhatsApp Web, usando o servidor local |
+| **Extensão** | Painel lateral do Chrome com modos online (Render) e local; vínculo por código sem ocupar outra vaga |
 | **UX** | Controles em modais, navegação de volta, status e convite de reconexão |
 
 ## Arquitetura
@@ -87,13 +87,13 @@ npm.cmd run app
 
 Abra **http://localhost:3100**. Conecte a conta usando o QR quando solicitado e autorize os grupos desejados. Os dados e a autenticação ficam no computador local.
 
-### Extensão do Chrome
+### Extensão do Chrome — online ou local
 
-1. Com o monitor local ativo, abra o painel.
-2. Escolha a opção de adicionar a extensão e siga as instruções.
-3. Abra o painel lateral no Chrome.
+**Modo online (sem Node.js no computador):** abra [o painel web](https://eth-whatsapp-bot.onrender.com/), entre em **Configurações gerais → Adicionar ao Google Chrome**, baixe e extraia o ZIP e instale a pasta `extension` em `chrome://extensions` com o Modo do desenvolvedor. No site, gere um código temporário de vinculação e cole-o na extensão. Ela usará **a mesma instalação do painel web, sem ocupar uma segunda vaga**.
 
-A extensão depende do servidor local e **não substitui** o processo Node.js.
+**Modo local:** na extensão, selecione **Painel local** e execute `npm.cmd run app` no computador para usar `http://localhost:3100`.
+
+A extensão ainda não foi publicada na Chrome Web Store. No Render gratuito as sessões de demonstração podem ser apagadas após reinícios ou novos deploys; nesse caso, reconecte a conta e vincule a extensão novamente.
 
 ## Comandos de jogos
 
