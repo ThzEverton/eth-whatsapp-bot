@@ -18,6 +18,7 @@ import type { Panel } from "./panel.js";
 export class Connection {
   panel?: Panel;
   private socket?: WASocket;
+  private handler?: MessageHandler;
   private reconnect?: ReturnType<typeof setTimeout>;
   private stopped = false;
   private connecting = false;
@@ -37,6 +38,13 @@ export class Connection {
     if (!sent?.key.id) throw new Error("Envio sem confirmação válida");
     this.panel?.sent(jid, sent.key.id, text);
     return sent.key.id;
+  };
+  // Somente mensagens digitadas no dashboard entram no roteador local.
+  // Mensagens automaticas geradas pelo proprio bot usam "send" e nao geram eco de comando.
+  sendFromPanel: Send = async (jid, text, mentions) => {
+    const messageId = await this.send(jid, text, mentions);
+    await this.handler?.handlePanelSent(jid, messageId, text);
+    return messageId;
   };
   async connect() {
     if (this.stopped || this.connecting) return;
@@ -72,6 +80,7 @@ export class Connection {
         (e) => logger.error({ err: e }, "Falha ao processar mensagem"),
         () => socket.user?.id,
       );
+      this.handler = handler;
       socket.ev.on("creds.update", () => {
         if (this.socket !== socket) return;
         this.credsWrites = this.credsWrites
@@ -166,6 +175,7 @@ export class Connection {
           this.panel?.connectionState?.("disconnected");
           this.clearQR();
           socket.ev.removeAllListeners("messages.upsert");
+          this.handler = undefined;
           this.socket = undefined;
           const code = (
             update.lastDisconnect?.error as
@@ -262,6 +272,7 @@ export class Connection {
   }
   stop() {
     this.stopped = true;
+    this.handler = undefined;
     this.panel?.connectionState?.("offline");
     clearTimeout(this.reconnect);
     this.manager.shutdown();

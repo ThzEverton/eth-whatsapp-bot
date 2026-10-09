@@ -17,7 +17,7 @@ async function main() {
     (e) => logger.error({ err: e }, "Falha de envio/jogo"),
   );
   connection = new Connection(env.authDir, env.owner, manager);
-  const panel = new Panel(manager, connection.send, {
+  const panel = new Panel(manager, connection.sendFromPanel, {
     disconnect: () => connection.disconnectAccount(),
     connect: () => connection.connectAccount(),
   });

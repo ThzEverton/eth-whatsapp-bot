@@ -9,6 +9,8 @@ const socket = vi.hoisted(() => ({
   ev: { on: vi.fn(), removeAllListeners: vi.fn() },
   end: vi.fn(),
   logout: vi.fn(async () => {}),
+  user: { id: "5511999999999@s.whatsapp.net" },
+  sendMessage: vi.fn(async (_jid: string, _message: { text: string; mentions?: string[] }) => ({ key: { id: "outgoing" } })),
 }));
 vi.mock("@whiskeysockets/baileys", () => ({
   default: () => socket,
@@ -73,6 +75,39 @@ it("desconecta de verdade, arquiva a sessão e permite preparar um novo QR", asy
   expect(socket.ev.on.mock.calls.length).toBeGreaterThan(count);
   expect(connectionState).toHaveBeenLastCalledWith("connecting");
   connection.stop();
+});
+
+it("envio de /jogo pelo painel inicia o bot e recebe uma resposta sem precisar do eco", async () => {
+  const group = "123456@g.us";
+  let counter = 0;
+  socket.sendMessage.mockImplementation(async () => ({
+    key: { id: "outgoing-" + ++counter },
+  }));
+  const config = new ConfigStore([group]);
+  let connection!: Connection;
+  const manager = new GameManager(config, (...args) => connection.send(...args));
+  connection = new Connection("unused", "", manager);
+  const sent = vi.fn();
+  connection.panel = { sent, group: vi.fn(), connectionState: vi.fn() } as unknown as Panel;
+  try {
+    await connection.connect();
+    manager.ready = true;
+    await connection.sendFromPanel(group, "/jogo");
+    expect(manager.session(group)?.status).toBe("SELECTING");
+    expect(socket.sendMessage.mock.calls).toHaveLength(2);
+    await connection.sendFromPanel(group, "/jogo quiz");
+    expect(manager.session(group)?.status).toBe("ACTIVE");
+    const answer = manager.session(group)!.answer!;
+    await connection.sendFromPanel(group, answer);
+    expect(manager.session(group)).toBeUndefined();
+    const winners = socket.sendMessage.mock.calls
+      .filter(([, message]) => typeof message?.text === "string" && message.text.includes("TEMOS UM VENCEDOR"));
+    expect(winners).toHaveLength(1);
+    // A mensagem foi registrada no painel junto com a resposta automatica.
+    expect(sent).toHaveBeenCalled();
+  } finally {
+    connection.stop();
+  }
 });
 
 it("não arquiva a sessão se o WhatsApp recusar o logout", async () => {

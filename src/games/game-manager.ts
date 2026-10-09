@@ -193,7 +193,9 @@ export class GameManager {
     if (
       !captured ||
       captured.status !== "ACTIVE" ||
-      m.timestamp < Math.ceil(captured.startedAt! / 1000) * 1000 ||
+      // O WhatsApp fornece horario em segundos. Aceitar o segundo inicial
+      // evita perder respostas rapidas e ainda descarta mensagens de segundos anteriores.
+      m.timestamp < Math.floor(captured.startedAt! / 1000) * 1000 ||
       m.timestamp > Date.now() + 5000 ||
       (m.quotedId && m.quotedId !== captured.questionMessageId)
     )

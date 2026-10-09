@@ -17,6 +17,39 @@ export class MessageHandler {
     private error: (e: unknown) => void = () => {},
     private authenticatedSelf: () => string | undefined = () => undefined,
   ) {}
+  // Mensagem digitada por uma pessoa no painel: o envio foi confirmado pelo
+  // WhatsApp, mas o eco messages.upsert pode nao chegar ou vir como append.
+  // Trata a mensagem uma unica vez, sem confundir com respostas geradas pelo bot.
+  async handlePanelSent(chat: string, id: string, text: string) {
+    try {
+      if (
+        !this.manager.ready ||
+        !groupJid(chat) ||
+        !this.manager.config.groups.has(chat) ||
+        !id ||
+        !text.trim() ||
+        text.length > 500
+      ) return;
+      const sender = userJid(this.authenticatedSelf());
+      if (!sender) {
+        logger.warn({ groupId: chat }, "Mensagem do painel sem remetente autenticado");
+        return;
+      }
+      if (this.dedup.seen(chat + ":" + id)) return;
+      await routeGame(
+        {
+          groupId: chat,
+          senderId: sender,
+          messageId: id,
+          text: text.trim(),
+          timestamp: Date.now(),
+        },
+        this.manager,
+      );
+    } catch (e) {
+      this.error(e);
+    }
+  }
   async handle(raw: WAMessage, type: string, requestId?: string) {
     try {
       const chat = raw?.key?.remoteJid,

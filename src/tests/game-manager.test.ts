@@ -92,6 +92,14 @@ describe("Integridade das partidas", () => {
     expect(wins()).toHaveLength(1);
     expect(manager.session(A)).toBeUndefined();
   });
+  it("aceita resposta rapida no mesmo segundo em que a pergunta aparece", async () => {
+    vi.setSystemTime(2000000000450);
+    await manager.request(A, U, "quiz");
+    const correct = answer();
+    await manager.answer(msg(correct));
+    expect(wins()).toHaveLength(1);
+    expect(manager.session(A)).toBeUndefined();
+  });
   it("duplicata de resposta gera uma vitória", async () => {
     await manager.request(A, U, "quiz");
     const m = msg(answer());
