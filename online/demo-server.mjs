@@ -25,8 +25,66 @@ let saveLock=Promise.resolve();
 function save(){const task=saveLock.then(async()=>{const tmp=ledger+'.tmp';await writeFile(tmp,JSON.stringify(records),{mode:0o600});const {rename}=await import('node:fs/promises');await rename(tmp,ledger);});saveLock=task.then(()=>{},()=>{});return task;}
 let allocationLock=Promise.resolve();
 function allocate(){const task=allocationLock.then(async()=>{if(records.length>=max)return null;const secret=randomBytes(32).toString('hex'),id=randomBytes(12).toString('hex');records.push({id,hash:hash(secret),created:Date.now()});await save();return {secret,id};});allocationLock=task.then(()=>{},()=>{});return task;}
-async function ensureProcess(record){let s=sessions.get(record.id);if(s?.child&&!s.child.killed&&s.child.exitCode===null)return s;const dir=path.join(data,record.id);await mkdir(path.join(dir,'runtime'),{recursive:true,mode:0o700});const child=spawn(process.execPath,[path.join(root,'dist/index.js')],{cwd:dir,env:{...process.env,AUTH_DIR:path.join(dir,'auth'),CONFIG_FILE:path.join(dir,'runtime/config.json'),OWNER_JID:'',ALLOWED_GROUP_IDS:''},stdio:'ignore'});s={child,dir};sessions.set(record.id,s);child.on('exit',()=>{if(sessions.get(record.id)===s){s.child=null;sessions.set(record.id,s);}});return s;}
-async function state(record,route,body){const s=await ensureProcess(record);let info;for(let i=0;i<12;i++){try{info=JSON.parse(await readFile(path.join(s.dir,'runtime/panel.json'),'utf8'));if(info.pid===s.child?.pid)break;}catch{}await new Promise(r=>setTimeout(r,250));}if(!info||info.pid!==s.child?.pid)throw Error('Bot iniciando. Tente novamente.');
+// Apenas eventos operacionais permitidos sao publicados no log geral.
+// Nao encaminhe QR codes, mensagens de grupos nem credenciais do subprocesso.
+const visibleBotEvents=new Set([
+ 'WhatsApp conectado',
+ 'WhatsApp desconectado; partidas canceladas',
+ 'Comando de jogo observado',
+ 'Comando de jogo ignorado',
+ 'Comando encaminhado ao motor de jogos',
+ 'Falha de envio/jogo',
+ 'Falha ao processar mensagem',
+ 'Não foi possível iniciar',
+]);
+function forwardOperationalLogs(stream){
+ let pending='';
+ stream.on('data',chunk=>{
+  pending+=chunk.toString('utf8');
+  if(pending.length>20000)pending=pending.slice(-20000);
+  let index;
+  while((index=pending.indexOf('\n'))!==-1){
+   const line=pending.slice(0,index).trim();pending=pending.slice(index+1);
+   if(!line.startsWith('{'))continue;
+   try{
+    const event=JSON.parse(line);
+    if(!visibleBotEvents.has(event.msg))continue;
+    console.log(JSON.stringify({
+     source:'bot',event:event.msg,
+     eventType:typeof event.eventType==='string'?event.eventType:undefined,
+     fromMe:typeof event.fromMe==='boolean'?event.fromMe:undefined,
+     ownerMatched:typeof event.ownerMatched==='boolean'?event.ownerMatched:undefined,
+     reason:typeof event.reason==='string'?event.reason:undefined,
+    }));
+   }catch{}
+  }
+ });
+}
+async function ensureProcess(record){
+ let s=sessions.get(record.id);
+ if(s?.child&&!s.child.killed&&s.child.exitCode===null)return s;
+ const dir=path.join(data,record.id);
+ await mkdir(path.join(dir,'runtime'),{recursive:true,mode:0o700});
+ const child=spawn(process.execPath,[path.join(root,'dist/index.js')],{
+  cwd:dir,
+  env:{...process.env,AUTH_DIR:path.join(dir,'auth'),CONFIG_FILE:path.join(dir,'runtime/config.json'),OWNER_JID:'',ALLOWED_GROUP_IDS:''},
+  stdio:['ignore','pipe','pipe'],
+ });
+ s={child,dir};
+ sessions.set(record.id,s);
+ forwardOperationalLogs(child.stdout);
+ let hasStderr=false;
+ child.stderr.on('data',()=>{
+  if(!hasStderr){hasStderr=true;console.warn('Processo do bot reportou erro interno; conteudo protegido nao foi publicado');}
+ });
+ child.on('error',error=>{console.error('Falha ao criar processo do bot:',error.code||'erro_desconhecido');});
+ child.on('exit',(code,signal)=>{
+  console.warn('Processo do bot encerrado:',JSON.stringify({code,signal}));
+  if(sessions.get(record.id)===s){s.child=null;sessions.set(record.id,s);}
+ });
+ return s;
+}
+async function state(record,route,body){const s=await ensureProcess(record);let info;for(let i=0;i<24;i++){try{info=JSON.parse(await readFile(path.join(s.dir,'runtime/panel.json'),'utf8'));if(info.pid===s.child?.pid)break;}catch{}if(!s.child||s.child.exitCode!==null)break;await new Promise(r=>setTimeout(r,350));}if(!info||info.pid!==s.child?.pid)throw Error('Bot iniciando. Tente novamente.');
  const response=await fetch('http://127.0.0.1:'+info.port+'/'+route,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+info.token,'Content-Type':'application/json'},body,signal:AbortSignal.timeout(12000)});return {status:response.status,data:await response.json()};}
 async function getBody(req){let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>20000)throw Error('Requisicao muito grande');}return raw;}
 const staticFiles=new Map([['/','index.html'],['/index.html','index.html'],['/ui.css','ui.css'],['/monitor-ui.js','monitor-ui.js'],['/management.js','management.js'],['/legal-documents.json','legal-documents.json'],['/online.css','online.css'],['/demo-client.js','demo-client.js'],['/extension-link.js','extension-link.js']]);
@@ -122,7 +180,7 @@ const server=http.createServer(async(req,res)=>{try{
   res.writeHead(200,{'Content-Type':'text/html; charset=utf-8'}).end(html);return;
  }
  res.writeHead(200,{'Content-Type':mime(file)}).end(buf);
- }catch(e){console.error('Erro demo:',e.message);json(res,503,{error:'Sistema temporariamente indisponivel'});}
+ }catch(e){console.error('Erro demo:',e.message);const temporary=String(e?.message||'').includes('Bot iniciando');json(res,503,{error:temporary?'O bot ainda esta iniciando. Aguarde alguns segundos e tente novamente.':'Sistema temporariamente indisponivel'});}
 });
 server.listen(port,'0.0.0.0',()=>console.log('Demo no ar porta '+port));
 process.on('SIGTERM',()=>{for(const s of sessions.values())s.child?.kill('SIGTERM');server.close();});

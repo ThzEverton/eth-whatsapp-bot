@@ -10,6 +10,16 @@ export class MessageHandler {
   private dedup = new MessageDedup();
   private boot = Date.now();
   private gameIdentities = new Map<string, string>();
+  private botMessageIds = new Map<string, number>();
+
+  markBotMessage(chat: string, id: string) {
+    const now = Date.now();
+    this.botMessageIds.set(chat + ":" + id, now);
+    for (const [key, when] of this.botMessageIds) {
+      if (when >= now - 300000 && this.botMessageIds.size <= 5000) break;
+      this.botMessageIds.delete(key);
+    }
+  }
   constructor(
     private manager: GameManager,
     private config: ConfigCommand,
@@ -94,6 +104,11 @@ export class MessageHandler {
           text.trim(),
         );
       const selfOwner = this.config.isOwner(this.authenticatedSelf() || "");
+      if (ownCommand && !isIntroduction)
+        logger.info(
+          { eventType: type, fromMe: !!raw.key.fromMe, ownerMatched: selfOwner },
+          "Comando de jogo observado",
+        );
       if (isIntroduction)
         logger.info(
           {
@@ -106,14 +121,18 @@ export class MessageHandler {
           },
           "Comando /bot recebido",
         );
-      const liveOwnCommand =
-        type === "append" && raw.key.fromMe && ownCommand && selfOwner;
-      if (requestId || (type !== "notify" && !liveOwnCommand)) return;
-      if (
-        raw.key.fromMe &&
-        (!ownCommand || !this.config.isOwner(this.authenticatedSelf() || ""))
-      )
+      // O Baileys costuma classificar mensagens do proprio aparelho como
+      // "append". Elas podem iniciar jogos mesmo sem serem comandos de /config.
+      // Durante partidas, tambem aceita palpites do numero conectado.
+      // Mensagens geradas pelo bot sao marcadas na conexao e ignoradas aqui.
+      const outgoingGame =
+        !!raw.key.fromMe && (ownCommand || !!this.manager.session(chat));
+      if (requestId || (type !== "notify" && !(type === "append" && outgoingGame))) {
+        if (ownCommand) logger.info({ reason: requestId ? "historico" : "tipo_de_evento" }, "Comando de jogo ignorado");
         return;
+      }
+      if (raw.key.fromMe && this.botMessageIds.has(chat + ":" + id)) return;
+      if (raw.key.fromMe && !outgoingGame) return;
       const timestamp = Number(raw.messageTimestamp) * 1000,
         now = Date.now();
       if (
@@ -176,6 +195,8 @@ export class MessageHandler {
         },
         this.manager,
       );
+      if (ownCommand)
+        logger.info({ eventType: type, fromMe: !!raw.key.fromMe }, "Comando encaminhado ao motor de jogos");
     } catch (e) {
       this.error(e);
     }

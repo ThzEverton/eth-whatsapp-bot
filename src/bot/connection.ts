@@ -36,6 +36,9 @@ export class Connection {
     if (!this.manager.ready || !socket) throw new Error("Conexão indisponível");
     const sent = await socket.sendMessage(jid, { text, mentions });
     if (!sent?.key.id) throw new Error("Envio sem confirmação válida");
+    // Bloqueia o eco das mensagens automaticas, sem bloquear /jogo enviado
+    // manualmente pelo dono no proprio WhatsApp.
+    this.handler?.markBotMessage(jid, sent.key.id);
     this.panel?.sent(jid, sent.key.id, text);
     return sent.key.id;
   };
